@@ -1,8 +1,7 @@
 class Bankkonto {
-  protected kontonummer: number;
-  protected navn: string;
-  protected saldo: number;
-
+  kontonummer: number;
+  navn: string;
+  saldo: number;
   constructor(kontonummer: number, navn: string, saldo: number) {
     this.kontonummer = kontonummer;
     this.navn = navn;
@@ -37,9 +36,13 @@ class Bankkonto {
       return;
     }
 
-    const målKonto = målBank.kontoer.find(
-      (konto) => konto.kontonummer === målKontoNummer
-    );
+    let målKonto: Bankkonto | undefined;
+    for (const konto of målBank.kontoer) {
+      if (konto.kontonummer === målKontoNummer) {
+        målKonto = konto;
+        break;
+      }
+    }
     if (!målKonto) {
       console.log("Mottakerkontoen finnes ikke");
       return;
@@ -53,10 +56,10 @@ class Bankkonto {
 }
 
 class Bank {
-  protected navn: string;
-  protected kontoer: Bankkonto[] = [];
-
-  constructor(navn: string) {
+  navn: string;
+  kontoer: Bankkonto[];
+  constructor(navn: string, bankkontoer: Bankkonto[] = []) {
+    this.kontoer = bankkontoer;
     this.navn = navn;
   }
 
@@ -71,6 +74,15 @@ class Bank {
     }
     return true;
   }
+
+  finnKonto(kontonummer: number): Bankkonto | undefined {
+    for (const konto of this.kontoer) {
+      if (konto.kontonummer === kontonummer) {
+        return konto;
+      }
+    }
+    return undefined;
+  }
 }
 
 // Opprett en ny bank
@@ -81,8 +93,8 @@ minBank.åpneKonto(123, "Alice", 1000);
 minBank.åpneKonto(456, "Bob", 500);
 
 // Overfør penger fra Alice til Bob
-const aliceKonto = minBank.kontoer.find((konto) => konto.kontonummer === 123);
-const bobKonto = minBank.kontoer.find((konto) => konto.kontonummer === 456);
+const aliceKonto = minBank.finnKonto(123);
+const bobKonto = minBank.finnKonto(456);
 
 if (aliceKonto && bobKonto) {
   console.log("Saldo før overføring:");

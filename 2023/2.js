@@ -27,7 +27,14 @@ var Bankkonto = /** @class */ (function () {
             console.log("Ikke nok penger på avsenderkontoen");
             return;
         }
-        var målKonto = målBank.kontoer.find(function (konto) { return konto.kontonummer === målKontoNummer; });
+        var målKonto;
+        for (var _i = 0, _a = målBank.kontoer; _i < _a.length; _i++) {
+            var konto = _a[_i];
+            if (konto.kontonummer === målKontoNummer) {
+                målKonto = konto;
+                break;
+            }
+        }
         if (!målKonto) {
             console.log("Mottakerkontoen finnes ikke");
             return;
@@ -38,8 +45,9 @@ var Bankkonto = /** @class */ (function () {
     return Bankkonto;
 }());
 var Bank = /** @class */ (function () {
-    function Bank(navn) {
-        this.kontoer = [];
+    function Bank(navn, bankkontoer) {
+        if (bankkontoer === void 0) { bankkontoer = []; }
+        this.kontoer = bankkontoer;
         this.navn = navn;
     }
     Bank.prototype.åpneKonto = function (kontonummer, navn, saldo) {
@@ -52,6 +60,15 @@ var Bank = /** @class */ (function () {
         }
         return true;
     };
+    Bank.prototype.finnKonto = function (kontonummer) {
+        for (var _i = 0, _a = this.kontoer; _i < _a.length; _i++) {
+            var konto = _a[_i];
+            if (konto.kontonummer === kontonummer) {
+                return konto;
+            }
+        }
+        return undefined;
+    };
     return Bank;
 }());
 // Opprett en ny bank
@@ -60,13 +77,13 @@ var minBank = new Bank("Min Bank");
 minBank.åpneKonto(123, "Alice", 1000);
 minBank.åpneKonto(456, "Bob", 500);
 // Overfør penger fra Alice til Bob
-var aliceKonto = minBank.kontoer.find(function (konto) { return konto.kontonummer === 123; });
-var bobKonto = minBank.kontoer.find(function (konto) { return konto.kontonummer === 456; });
+var aliceKonto = minBank.finnKonto(123);
+var bobKonto = minBank.finnKonto(456);
 if (aliceKonto && bobKonto) {
     console.log("Saldo før overføring:");
     console.log("Alice:", aliceKonto.sjekkSaldo());
     console.log("Bob:", bobKonto.sjekkSaldo());
-    aliceKonto.overfør(200, 456, minBank);
+    aliceKonto.overfør(1200, 456, minBank);
     console.log("\nSaldo etter overføring:");
     console.log("Alice:", aliceKonto.sjekkSaldo());
     console.log("Bob:", bobKonto.sjekkSaldo());
